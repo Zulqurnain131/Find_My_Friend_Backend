@@ -16,8 +16,9 @@ namespace Find_My_Friend_Backend.Models
     {
         public User()
         {
-            this.Friends = new HashSet<Friend>();
-            this.Friends1 = new HashSet<Friend>();
+            this.LocationHistories = new HashSet<LocationHistory>();
+            this.LocationRequests = new HashSet<LocationRequest>();
+            this.LocationRequests1 = new HashSet<LocationRequest>();
         }
     
         public int UserId { get; set; }
@@ -26,11 +27,10 @@ namespace Find_My_Friend_Backend.Models
         public string Password { get; set; }
         public string PhoneNo { get; set; }
         public string ProfileImage { get; set; }
-        public Nullable<decimal> Latitude { get; set; }
-        public Nullable<decimal> Longitude { get; set; }
         public Nullable<System.DateTime> CreatedAt { get; set; }
     
-        public virtual ICollection<Friend> Friends { get; set; }
-        public virtual ICollection<Friend> Friends1 { get; set; }
+        public virtual ICollection<LocationHistory> LocationHistories { get; set; }
+        public virtual ICollection<LocationRequest> LocationRequests { get; set; }
+        public virtual ICollection<LocationRequest> LocationRequests1 { get; set; }
     }
 }

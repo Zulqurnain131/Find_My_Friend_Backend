@@ -161,12 +161,19 @@
     <Compile Include="Areas\HelpPage\SampleGeneration\TextSample.cs" />
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\UsersController.cs" />
+    <Compile Include="Dtos\ContactSyncDto.cs" />
+    <Compile Include="Dtos\LocationRequestDto.cs" />
+    <Compile Include="Dtos\LocationRequestNotificationDto.cs" />
     <Compile Include="Dtos\LoginDto.cs" />
+    <Compile Include="Dtos\UserDto.cs" />
     <Compile Include="Dtos\UserLocationDto.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\Friend.cs">
+    <Compile Include="Models\LocationHistory.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\LocationRequest.cs">
       <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\Model1.Context.cs">
@@ -183,6 +190,9 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Model1.edmx</DependentUpon>
+    </Compile>
+    <Compile Include="Models\sysdiagram.cs">
+      <DependentUpon>Model1.tt</DependentUpon>
     </Compile>
     <Compile Include="Models\User.cs">
       <DependentUpon>Model1.tt</DependentUpon>

@@ -4,11 +4,14 @@
   <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
-      <Diagram DiagramId="b2de4c051729408ca3a37461899ec8e2" Name="Diagram1">
-        <EntityTypeShape EntityType="FindMyFriendsModel.Friend" Width="1.5" PointX="3" PointY="1.375" IsExpanded="true" />
-        <EntityTypeShape EntityType="FindMyFriendsModel.User" Width="1.5" PointX="0.75" PointY="1" IsExpanded="true" />
-        <AssociationConnector Association="FindMyFriendsModel.FK__Friends__Receive__3D5E1FD2" ManuallyRouted="false" />
-        <AssociationConnector Association="FindMyFriendsModel.FK__Friends__SenderI__3C69FB99" ManuallyRouted="false" />
+      <Diagram DiagramId="9904e852dfe64c959580ebfd36d77513" Name="Diagram1">
+        <EntityTypeShape EntityType="FindMyFriendsModel.LocationHistory" Width="1.5" PointX="3" PointY="1.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="FindMyFriendsModel.LocationRequest" Width="1.5" PointX="3" PointY="4" IsExpanded="true" />
+        <EntityTypeShape EntityType="FindMyFriendsModel.sysdiagram" Width="1.5" PointX="5.75" PointY="0.75" IsExpanded="true" />
+        <EntityTypeShape EntityType="FindMyFriendsModel.User" Width="1.5" PointX="0.75" PointY="2.125" IsExpanded="true" />
+        <AssociationConnector Association="FindMyFriendsModel.FK__LocationH__UserI__60A75C0F" ManuallyRouted="false" />
+        <AssociationConnector Association="FindMyFriendsModel.FK_Friendships_Receiver" ManuallyRouted="false" />
+        <AssociationConnector Association="FindMyFriendsModel.FK_Friendships_Sender" ManuallyRouted="false" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

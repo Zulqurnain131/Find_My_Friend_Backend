@@ -25,7 +25,9 @@ namespace Find_My_Friend_Backend.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public DbSet<Friend> Friends { get; set; }
+        public DbSet<LocationHistory> LocationHistories { get; set; }
+        public DbSet<LocationRequest> LocationRequests { get; set; }
+        public DbSet<sysdiagram> sysdiagrams { get; set; }
         public DbSet<User> Users { get; set; }
     }
 }

@@ -5,15 +5,34 @@
     <!-- SSDL content -->
     <edmx:StorageModels>
       <Schema Namespace="FindMyFriendsModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
-        <EntityType Name="Friends">
+        <EntityType Name="LocationHistory">
           <Key>
-            <PropertyRef Name="FriendId" />
+            <PropertyRef Name="LocationId" />
           </Key>
-          <Property Name="FriendId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="LocationId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="UserId" Type="int" Nullable="false" />
+          <Property Name="Latitude" Type="decimal" Precision="10" Scale="8" />
+          <Property Name="Longitude" Type="decimal" Precision="11" Scale="8" />
+          <Property Name="RecordedAt" Type="datetime" />
+        </EntityType>
+        <EntityType Name="LocationRequests">
+          <Key>
+            <PropertyRef Name="RequestId" />
+          </Key>
+          <Property Name="RequestId" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="SenderId" Type="int" Nullable="false" />
           <Property Name="ReceiverId" Type="int" Nullable="false" />
-          <Property Name="Status" Type="nvarchar" MaxLength="20" />
-          <Property Name="CreatedAt" Type="datetime" />
+          <Property Name="Status" Type="varchar" MaxLength="20" Nullable="false" />
+        </EntityType>
+        <EntityType Name="sysdiagrams">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="principal_id" Type="int" Nullable="false" />
+          <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="version" Type="int" />
+          <Property Name="definition" Type="varbinary(max)" />
         </EntityType>
         <EntityType Name="Users">
           <Key>
@@ -25,44 +44,60 @@
           <Property Name="Password" Type="nvarchar" MaxLength="255" Nullable="false" />
           <Property Name="PhoneNo" Type="nvarchar" MaxLength="20" />
           <Property Name="ProfileImage" Type="nvarchar(max)" />
-          <Property Name="Latitude" Type="decimal" Precision="10" Scale="8" />
-          <Property Name="Longitude" Type="decimal" Precision="11" Scale="8" />
           <Property Name="CreatedAt" Type="datetime" />
         </EntityType>
-        <Association Name="FK__Friends__Receive__3D5E1FD2">
+        <Association Name="FK__LocationH__UserI__60A75C0F">
           <End Role="Users" Type="Self.Users" Multiplicity="1" />
-          <End Role="Friends" Type="Self.Friends" Multiplicity="*" />
+          <End Role="LocationHistory" Type="Self.LocationHistory" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Users">
               <PropertyRef Name="UserId" />
             </Principal>
-            <Dependent Role="Friends">
+            <Dependent Role="LocationHistory">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friendships_Receiver">
+          <End Role="Users" Type="Self.Users" Multiplicity="1" />
+          <End Role="LocationRequests" Type="Self.LocationRequests" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="LocationRequests">
               <PropertyRef Name="ReceiverId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Friends__SenderI__3C69FB99">
+        <Association Name="FK_Friendships_Sender">
           <End Role="Users" Type="Self.Users" Multiplicity="1" />
-          <End Role="Friends" Type="Self.Friends" Multiplicity="*" />
+          <End Role="LocationRequests" Type="Self.LocationRequests" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Users">
               <PropertyRef Name="UserId" />
             </Principal>
-            <Dependent Role="Friends">
+            <Dependent Role="LocationRequests">
               <PropertyRef Name="SenderId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="FindMyFriendsModelStoreContainer">
-          <EntitySet Name="Friends" EntityType="Self.Friends" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LocationHistory" EntityType="Self.LocationHistory" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="LocationRequests" EntityType="Self.LocationRequests" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagrams" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Users" EntityType="Self.Users" Schema="dbo" store:Type="Tables" />
-          <AssociationSet Name="FK__Friends__Receive__3D5E1FD2" Association="Self.FK__Friends__Receive__3D5E1FD2">
+          <AssociationSet Name="FK__LocationH__UserI__60A75C0F" Association="Self.FK__LocationH__UserI__60A75C0F">
             <End Role="Users" EntitySet="Users" />
-            <End Role="Friends" EntitySet="Friends" />
+            <End Role="LocationHistory" EntitySet="LocationHistory" />
           </AssociationSet>
-          <AssociationSet Name="FK__Friends__SenderI__3C69FB99" Association="Self.FK__Friends__SenderI__3C69FB99">
+          <AssociationSet Name="FK_Friendships_Receiver" Association="Self.FK_Friendships_Receiver">
             <End Role="Users" EntitySet="Users" />
-            <End Role="Friends" EntitySet="Friends" />
+            <End Role="LocationRequests" EntitySet="LocationRequests" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friendships_Sender" Association="Self.FK_Friendships_Sender">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="LocationRequests" EntitySet="LocationRequests" />
           </AssociationSet>
         </EntityContainer>
       </Schema>
@@ -70,17 +105,37 @@
     <!-- CSDL content -->
     <edmx:ConceptualModels>
       <Schema Namespace="FindMyFriendsModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
-        <EntityType Name="Friend">
+        <EntityType Name="LocationHistory">
           <Key>
-            <PropertyRef Name="FriendId" />
+            <PropertyRef Name="LocationId" />
           </Key>
-          <Property Name="FriendId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="LocationId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="UserId" Type="Int32" Nullable="false" />
+          <Property Name="Latitude" Type="Decimal" Precision="10" Scale="8" />
+          <Property Name="Longitude" Type="Decimal" Precision="11" Scale="8" />
+          <Property Name="RecordedAt" Type="DateTime" Precision="3" />
+          <NavigationProperty Name="User" Relationship="Self.FK__LocationH__UserI__60A75C0F" FromRole="LocationHistory" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="LocationRequest">
+          <Key>
+            <PropertyRef Name="RequestId" />
+          </Key>
+          <Property Name="RequestId" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="SenderId" Type="Int32" Nullable="false" />
           <Property Name="ReceiverId" Type="Int32" Nullable="false" />
-          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
-          <Property Name="CreatedAt" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="User" Relationship="Self.FK__Friends__Receive__3D5E1FD2" FromRole="Friends" ToRole="Users" />
-          <NavigationProperty Name="User1" Relationship="Self.FK__Friends__SenderI__3C69FB99" FromRole="Friends" ToRole="Users" />
+          <Property Name="Status" Type="String" MaxLength="20" FixedLength="false" Unicode="false" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Friendships_Receiver" FromRole="LocationRequests" ToRole="Users" />
+          <NavigationProperty Name="User1" Relationship="Self.FK_Friendships_Sender" FromRole="LocationRequests" ToRole="Users" />
+        </EntityType>
+        <EntityType Name="sysdiagram">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
         </EntityType>
         <EntityType Name="User">
           <Key>
@@ -92,46 +147,63 @@
           <Property Name="Password" Type="String" MaxLength="255" FixedLength="false" Unicode="true" Nullable="false" />
           <Property Name="PhoneNo" Type="String" MaxLength="20" FixedLength="false" Unicode="true" />
           <Property Name="ProfileImage" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="Latitude" Type="Decimal" Precision="10" Scale="8" />
-          <Property Name="Longitude" Type="Decimal" Precision="11" Scale="8" />
           <Property Name="CreatedAt" Type="DateTime" Precision="3" />
-          <NavigationProperty Name="Friends" Relationship="Self.FK__Friends__Receive__3D5E1FD2" FromRole="Users" ToRole="Friends" />
-          <NavigationProperty Name="Friends1" Relationship="Self.FK__Friends__SenderI__3C69FB99" FromRole="Users" ToRole="Friends" />
+          <NavigationProperty Name="LocationHistories" Relationship="Self.FK__LocationH__UserI__60A75C0F" FromRole="Users" ToRole="LocationHistory" />
+          <NavigationProperty Name="LocationRequests" Relationship="Self.FK_Friendships_Receiver" FromRole="Users" ToRole="LocationRequests" />
+          <NavigationProperty Name="LocationRequests1" Relationship="Self.FK_Friendships_Sender" FromRole="Users" ToRole="LocationRequests" />
         </EntityType>
-        <Association Name="FK__Friends__Receive__3D5E1FD2">
+        <Association Name="FK__LocationH__UserI__60A75C0F">
           <End Role="Users" Type="Self.User" Multiplicity="1" />
-          <End Role="Friends" Type="Self.Friend" Multiplicity="*" />
+          <End Role="LocationHistory" Type="Self.LocationHistory" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Users">
               <PropertyRef Name="UserId" />
             </Principal>
-            <Dependent Role="Friends">
+            <Dependent Role="LocationHistory">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Friendships_Receiver">
+          <End Role="Users" Type="Self.User" Multiplicity="1" />
+          <End Role="LocationRequests" Type="Self.LocationRequest" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="LocationRequests">
               <PropertyRef Name="ReceiverId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <Association Name="FK__Friends__SenderI__3C69FB99">
+        <Association Name="FK_Friendships_Sender">
           <End Role="Users" Type="Self.User" Multiplicity="1" />
-          <End Role="Friends" Type="Self.Friend" Multiplicity="*" />
+          <End Role="LocationRequests" Type="Self.LocationRequest" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="Users">
               <PropertyRef Name="UserId" />
             </Principal>
-            <Dependent Role="Friends">
+            <Dependent Role="LocationRequests">
               <PropertyRef Name="SenderId" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
         <EntityContainer Name="FindMyFriendsEntities" annotation:LazyLoadingEnabled="true">
-          <EntitySet Name="Friends" EntityType="Self.Friend" />
+          <EntitySet Name="LocationHistories" EntityType="Self.LocationHistory" />
+          <EntitySet Name="LocationRequests" EntityType="Self.LocationRequest" />
+          <EntitySet Name="sysdiagrams" EntityType="Self.sysdiagram" />
           <EntitySet Name="Users" EntityType="Self.User" />
-          <AssociationSet Name="FK__Friends__Receive__3D5E1FD2" Association="Self.FK__Friends__Receive__3D5E1FD2">
+          <AssociationSet Name="FK__LocationH__UserI__60A75C0F" Association="Self.FK__LocationH__UserI__60A75C0F">
             <End Role="Users" EntitySet="Users" />
-            <End Role="Friends" EntitySet="Friends" />
+            <End Role="LocationHistory" EntitySet="LocationHistories" />
           </AssociationSet>
-          <AssociationSet Name="FK__Friends__SenderI__3C69FB99" Association="Self.FK__Friends__SenderI__3C69FB99">
+          <AssociationSet Name="FK_Friendships_Receiver" Association="Self.FK_Friendships_Receiver">
             <End Role="Users" EntitySet="Users" />
-            <End Role="Friends" EntitySet="Friends" />
+            <End Role="LocationRequests" EntitySet="LocationRequests" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Friendships_Sender" Association="Self.FK_Friendships_Sender">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="LocationRequests" EntitySet="LocationRequests" />
           </AssociationSet>
         </EntityContainer>
       </Schema>
@@ -140,14 +212,35 @@
     <edmx:Mappings>
       <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
         <EntityContainerMapping StorageEntityContainer="FindMyFriendsModelStoreContainer" CdmEntityContainer="FindMyFriendsEntities">
-          <EntitySetMapping Name="Friends">
-            <EntityTypeMapping TypeName="FindMyFriendsModel.Friend">
-              <MappingFragment StoreEntitySet="Friends">
-                <ScalarProperty Name="FriendId" ColumnName="FriendId" />
+          <EntitySetMapping Name="LocationHistories">
+            <EntityTypeMapping TypeName="FindMyFriendsModel.LocationHistory">
+              <MappingFragment StoreEntitySet="LocationHistory">
+                <ScalarProperty Name="LocationId" ColumnName="LocationId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="Latitude" ColumnName="Latitude" />
+                <ScalarProperty Name="Longitude" ColumnName="Longitude" />
+                <ScalarProperty Name="RecordedAt" ColumnName="RecordedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="LocationRequests">
+            <EntityTypeMapping TypeName="FindMyFriendsModel.LocationRequest">
+              <MappingFragment StoreEntitySet="LocationRequests">
+                <ScalarProperty Name="RequestId" ColumnName="RequestId" />
                 <ScalarProperty Name="SenderId" ColumnName="SenderId" />
                 <ScalarProperty Name="ReceiverId" ColumnName="ReceiverId" />
                 <ScalarProperty Name="Status" ColumnName="Status" />
-                <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="FindMyFriendsModel.sysdiagram">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="name" ColumnName="name" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="definition" ColumnName="definition" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -160,8 +253,6 @@
                 <ScalarProperty Name="Password" ColumnName="Password" />
                 <ScalarProperty Name="PhoneNo" ColumnName="PhoneNo" />
                 <ScalarProperty Name="ProfileImage" ColumnName="ProfileImage" />
-                <ScalarProperty Name="Latitude" ColumnName="Latitude" />
-                <ScalarProperty Name="Longitude" ColumnName="Longitude" />
                 <ScalarProperty Name="CreatedAt" ColumnName="CreatedAt" />
               </MappingFragment>
             </EntityTypeMapping>

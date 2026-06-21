@@ -12,13 +12,12 @@ namespace Find_My_Friend_Backend.Models
     using System;
     using System.Collections.Generic;
     
-    public partial class Friend
+    public partial class LocationRequest
     {
-        public int FriendId { get; set; }
+        public int RequestId { get; set; }
         public int SenderId { get; set; }
         public int ReceiverId { get; set; }
         public string Status { get; set; }
-        public Nullable<System.DateTime> CreatedAt { get; set; }
     
         public virtual User User { get; set; }
         public virtual User User1 { get; set; }

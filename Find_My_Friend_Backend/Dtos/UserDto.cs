@@ -5,11 +5,10 @@ using System.Web;
 
 namespace Find_My_Friend_Backend.Dtos
 {
-    public class UserLocationDto
+    public class UserDto
     {
         public int UserId { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
-        public DateTime RecordedAt { get; set; }
+        public string FullName { get; set; }
+        public string PhoneNo { get; set; }
     }
 }

@@ -1,7 +1,9 @@
 ﻿using Find_My_Friend_Backend.Dtos;
 using Find_My_Friend_Backend.Models;
+using Microsoft.Ajax.Utilities;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -108,17 +110,20 @@ namespace Find_My_Friend_Backend.Controllers
             }
         }
 
-        //           Saved User Location API ////
-        [HttpPut]
-        [Route("api/Users/SavedUserLocation")]
-        public IHttpActionResult SavedUserLocation(UserLocationDto userLocation)
+        /// Maintain Users  Location  History API ////
+        [HttpPost]
+        [Route("api/Users/UserLocationHistory")]
+        public IHttpActionResult UserLocationHistory(UserLocationDto userLocation)
         {
             try
             {
-                string query = "UPDATE [Users] SET Latitude = @p0, Longitude = @p1 WHERE UserId = @p2";
-                int rowsAffected = db.Database.ExecuteSqlCommand(query,userLocation.Latitude, userLocation.Longitude, userLocation.UserId);
+                // current location update
+                string historyQuery = @"INSERT INTO [LocationHistory] (UserId, Latitude, Longitude) VALUES (@p0, @p1, @p2)";
+                int rowsAffected = db.Database.ExecuteSqlCommand(historyQuery,userLocation.UserId, userLocation.Latitude, userLocation.Longitude);
+
                 if (rowsAffected > 0)
                 {
+
                     return Ok(new
                     {
                         status = HttpStatusCode.OK,
@@ -144,6 +149,123 @@ namespace Find_My_Friend_Backend.Controllers
                 });
             }
         }
+
+
+        ////////    Matched Conatct Api //////////
+        [HttpPost]
+        [Route("api/Users/MatchContacts")]
+        public IHttpActionResult MatchContacts(ContactSyncDto model)
+        {
+            try
+            {
+                if (model == null || model.Contacts == null)
+                {
+                    return BadRequest("No contacts provided");
+                }
+
+
+                // .Select(x => $"'{x}'") Har number ke around single quotes add karti hai
+                //  string.Join  Har conatctnumber   ko comma se join kar deti hai
+
+                string phones = string.Join(",", model.Contacts.Select(x => $"'{x}'"));
+
+                //IN operator use hota hai jab  ek column ko multiple values se compare karna ho.
+                string query = $@"
+                SELECT UserId, FullName, PhoneNo FROM [Users] WHERE PhoneNo IN ({phones})";
+
+                var matchedUsers = db.Database.SqlQuery<UserDto>(query).ToList();
+
+
+                return Ok(new
+                {
+                    status = HttpStatusCode.OK,
+                    message = "Matched contacts found",
+                    data = matchedUsers
+                });
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = "Error occurred",
+                    error = ex.Message
+                });
+            }
+        }
+
+        ////             Send Location Request API //////////
+        [HttpPost]
+        [Route("api/Users/SendRequest")]
+        public IHttpActionResult SendRequest(LocationRequestDto model)
+        {
+            try
+            {
+                if (model == null)
+                {
+                    return BadRequest("Invalid data");
+                }
+
+                string query = @"
+            INSERT INTO [LocationRequests] (SenderId, ReceiverId,Status)
+            VALUES (@p0, @p1,'Pending')";
+
+                db.Database.ExecuteSqlCommand(query, model.SenderId, model.ReceiverId);
+
+                return Ok(new
+                {
+                    status = HttpStatusCode.OK,
+                    message = "Friend request sent successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    status = HttpStatusCode.InternalServerError,
+                    message = "Error occurred",
+                    error = ex.Message
+                });
+            }
+        }
+
+        // Show location Request API //
+        [HttpGet]
+        [Route("api/Users/GetLocationRequests")]
+        public IHttpActionResult GetLocationRequests(int receiverId)
+        {
+            try
+            {
+                string query = @"
+       SELECT
+            LR.RequestId,
+            U.UserId,
+            U.FullName,
+            U.PhoneNo,
+            LR.Status
+        FROM LocationRequests LR
+         JOIN Users U
+            ON LR.SenderId = U.UserId
+        WHERE LR.ReceiverId = @p0";
+
+                var requests = db.Database.SqlQuery<LocationRequestNotificationDto>(
+                    query,
+                    receiverId
+                ).ToList();
+
+                return Ok(requests);
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+
+
 
 
     }
