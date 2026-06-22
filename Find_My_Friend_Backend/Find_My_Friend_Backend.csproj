@@ -162,6 +162,7 @@
     <Compile Include="Areas\HelpPage\XmlDocumentationProvider.cs" />
     <Compile Include="Controllers\UsersController.cs" />
     <Compile Include="Dtos\ContactSyncDto.cs" />
+    <Compile Include="Dtos\FetchFriendDto.cs" />
     <Compile Include="Dtos\LocationRequestDto.cs" />
     <Compile Include="Dtos\LocationRequestNotificationDto.cs" />
     <Compile Include="Dtos\LoginDto.cs" />

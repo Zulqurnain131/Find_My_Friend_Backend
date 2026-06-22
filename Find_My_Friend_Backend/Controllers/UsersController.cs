@@ -265,6 +265,30 @@ namespace Find_My_Friend_Backend.Controllers
         }
 
 
+        ////          Fetch Friends ////
+        [HttpGet]
+        [Route("api/Users/FetchFriends")]
+        public IHttpActionResult FetchFriends()
+        {
+            try
+            {
+                string query = @"SELECT UserId,FullName,PhoneNo FROM [Users] ";
+
+                var requests = db.Database.SqlQuery<FetchFriendDto>(query).ToList();
+
+                return Ok(requests);
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    message = ex.Message
+                });
+            }
+        }
+
+
+
 
 
 
