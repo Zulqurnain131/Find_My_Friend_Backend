@@ -265,6 +265,100 @@ namespace Find_My_Friend_Backend.Controllers
         }
 
 
+        // Accept Reject  location Request API //
+        [HttpPost]
+        [Route("api/Users/UpdateLocationRequestStatus")]
+        public IHttpActionResult UpdateLocationRequestStatus(RequestStatusDto model)
+        {
+            try
+            {
+                string query = @"
+        UPDATE  [LocationRequests]
+        SET Status = @p0
+        WHERE RequestId = @p1";
+
+                int rows = db.Database.ExecuteSqlCommand(
+                    query,
+                    model.Status,
+                    model.RequestId
+                );
+
+                if (rows == 0)
+                {
+                    return NotFound();
+                }
+
+                return Ok(new
+                {
+                    status = HttpStatusCode.OK,
+                    Message = "Request Accepted successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
+        // location Share with Friends API //
+
+        [HttpGet]
+        [Route("api/Users/GetSharedLocationHistory")]
+        public IHttpActionResult GetSharedLocationHistory(int senderId)
+        {
+            try
+            {
+                // Request check karo aur Accepted honi chahiye
+                string requestQuery = @"
+        SELECT
+            LR.ReceiverId,
+            U.FullName
+        FROM  [LocationRequests] LR
+         JOIN [Users] U
+            ON LR.ReceiverId = U.UserId
+        WHERE LR.SenderId= @p0
+        AND LR.Status = 'Accepted'";
+
+                var user = db.Database.SqlQuery<LocationRequestDto>(
+                    requestQuery,
+                   senderId
+                ).FirstOrDefault();
+
+                if (user == null)
+                {
+                    return BadRequest("Request not accepted.");
+                }
+
+                // Receiver ki sari locations
+                string locationQuery = @"
+        SELECT
+             USERID,
+            Latitude,
+            Longitude,
+            RecordedAt
+        FROM LocationHistory
+        WHERE UserId = @p0
+        ORDER BY RecordedAt DESC";
+
+                var locations = db.Database.SqlQuery<UserLocationDto>(
+                    locationQuery,
+                    user.ReceiverId
+                ).ToList();
+
+                return Ok(new
+                {
+                    FullName = user.FullName,
+                    Locations = locations
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+
         ////          Fetch Friends ////
         [HttpGet]
         [Route("api/Users/FetchFriends")]
@@ -287,6 +381,7 @@ namespace Find_My_Friend_Backend.Controllers
             }
         }
 
+        
 
 
 

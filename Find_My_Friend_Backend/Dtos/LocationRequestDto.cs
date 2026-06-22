@@ -11,5 +11,7 @@ namespace Find_My_Friend_Backend.Dtos
         public int SenderId { get; set; }
         public int ReceiverId { get; set; }
         public string Status { get; set; }
+        public string FullName { get; set; }
+
     }
 }

@@ -10,6 +10,8 @@ namespace Find_My_Friend_Backend.Dtos
         public int UserId { get; set; }
         public decimal Latitude { get; set; }
         public decimal Longitude { get; set; }
+
+      
         public DateTime RecordedAt { get; set; }
     }
 }

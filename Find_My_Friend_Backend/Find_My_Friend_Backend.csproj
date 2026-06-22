@@ -166,6 +166,7 @@
     <Compile Include="Dtos\LocationRequestDto.cs" />
     <Compile Include="Dtos\LocationRequestNotificationDto.cs" />
     <Compile Include="Dtos\LoginDto.cs" />
+    <Compile Include="Dtos\RequestStatusDto.cs" />
     <Compile Include="Dtos\UserDto.cs" />
     <Compile Include="Dtos\UserLocationDto.cs" />
     <Compile Include="Global.asax.cs">
