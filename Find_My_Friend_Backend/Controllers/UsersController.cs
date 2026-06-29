@@ -309,48 +309,55 @@ namespace Find_My_Friend_Backend.Controllers
         {
             try
             {
-                // Request check karo aur Accepted honi chahiye
+                // Sender ke sab accepted receivers
                 string requestQuery = @"
-        SELECT
-            LR.ReceiverId,
-            U.FullName
-        FROM  [LocationRequests] LR
-         JOIN [Users] U
-            ON LR.ReceiverId = U.UserId
-        WHERE LR.SenderId= @p0
-        AND LR.Status = 'Accepted'";
+SELECT
+    LR.ReceiverId,
+    U.FullName
+FROM LocationRequests LR
+INNER JOIN Users U
+    ON LR.ReceiverId = U.UserId
+WHERE LR.SenderId = @p0
+AND LR.Status = 'Accepted'";
 
-                var user = db.Database.SqlQuery<LocationRequestDto>(
+                var users = db.Database.SqlQuery<LocationRequestDto>(
                     requestQuery,
-                   senderId
-                ).FirstOrDefault();
-
-                if (user == null)
-                {
-                    return BadRequest("Request not accepted.");
-                }
-
-                // Receiver ki sari locations
-                string locationQuery = @"
-        SELECT
-             USERID,
-            Latitude,
-            Longitude,
-            RecordedAt
-        FROM LocationHistory
-        WHERE UserId = @p0
-        ORDER BY RecordedAt DESC";
-
-                var locations = db.Database.SqlQuery<UserLocationDto>(
-                    locationQuery,
-                    user.ReceiverId
+                    senderId
                 ).ToList();
 
-                return Ok(new
+                if (!users.Any())
                 {
-                    FullName = user.FullName,
-                    Locations = locations
-                });
+                    return BadRequest("No accepted requests found.");
+                }
+
+                var result = new List<object>();
+
+                foreach (var user in users)
+                {
+                    string locationQuery = @"
+SELECT
+    UserId,
+    Latitude,
+    Longitude,
+    RecordedAt
+FROM LocationHistory
+WHERE UserId = @p0
+ORDER BY RecordedAt DESC";
+
+                    var locations = db.Database.SqlQuery<UserLocationDto>(
+                        locationQuery,
+                        user.ReceiverId
+                    ).ToList();
+
+                    result.Add(new
+                    {
+                    
+                        FullName = user.FullName,
+                        Locations = locations
+                    });
+                }
+
+                return Ok(result);
             }
             catch (Exception ex)
             {
