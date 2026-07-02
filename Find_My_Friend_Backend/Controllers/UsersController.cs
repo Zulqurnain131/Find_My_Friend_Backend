@@ -387,12 +387,79 @@ ORDER BY RecordedAt DESC";
                 });
             }
         }
+        ///Get Sent Requests API////
 
-        
+        [HttpGet]
+        [Route("api/Users/GetSentFriendsRequests")]
+        public IHttpActionResult GetSentFriendsRequests(int userid)
+        {
+            try
+            {
+                string query = @"
+      SELECT
+    U.UserId,
+    U.FullName,
+    U.PhoneNo,
+    LR.Status,
+    LR.RequestId
+
+FROM LocationRequests LR
+ JOIN Users U
+ON LR.ReceiverId = U.UserId
+WHERE LR.SenderId = @p0";
+
+                var requests = db.Database.SqlQuery<LocationRequestNotificationDto>(
+                    query,
+                    userid
+                ).ToList();
+
+                return Ok(requests);
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    message = ex.Message
+                });
+            }
+        }
 
 
+        ////// Get Received Requests API////
+        [HttpGet]
+        [Route("api/Users/GetReceivedFriendsRequests")]
+        public IHttpActionResult GetReceivedRequests(int userid)
+        {
+            try
+            {
+                string query = @"
+      SELECT
+    U.UserId,
+    U.FullName,
+    U.PhoneNo,
+    LR.Status,
+    LR.RequestId
 
+FROM LocationRequests LR
+ JOIN Users U
+ON LR.SenderId = U.UserId
+WHERE LR.ReceiverId = @p0";
 
+                var requests = db.Database.SqlQuery<LocationRequestNotificationDto>(
+                    query,
+                    userid
+                ).ToList();
+
+                return Ok(requests);
+            }
+            catch (Exception ex)
+            {
+                return Content(HttpStatusCode.InternalServerError, new
+                {
+                    message = ex.Message
+                });
+            }
+        }
 
     }
 }

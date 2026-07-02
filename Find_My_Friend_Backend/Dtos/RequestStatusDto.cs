@@ -9,5 +9,7 @@ namespace Find_My_Friend_Backend.Dtos
     {
         public int RequestId { get; set; }
         public string Status { get; set; }
+
+        public string FullName { get; set; }
     }
 }
